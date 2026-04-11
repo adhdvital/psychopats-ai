@@ -32,11 +32,7 @@ export async function sendApplicationEmail(data: ApplicationEmailData): Promise<
         .join("\n")
     : "  none provided";
 
-  const { data: result, error } = await resend.emails.send({
-    from: "psychopats.ai <noreply@psychopats.ai>",
-    to: "vital@mindist.io",
-    subject: `New application: ${data.name} (${data.appliedVia})`,
-    text: `New application to psychopats.ai
+  const emailBody = `New application to psychopats.ai
 
 Name: ${data.name}
 Email: ${data.email}
@@ -53,15 +49,34 @@ ${socialLinksText}
 
 ---
 Review applications: https://www.instantdb.com/dash
-`,
+`;
+
+  const subject = `New application: ${data.name} (${data.appliedVia})`;
+
+  // Try verified domain first, fallback to Resend sandbox if domain not yet verified
+  const { data: result, error } = await resend.emails.send({
+    from: "psychopats.ai <noreply@psychopats.ai>",
+    to: "vital@mindist.io",
+    subject,
+    text: emailBody,
   });
 
   if (error) {
-    // Resend returns structured errors (403 = domain not verified, 429 = rate limit, etc.)
-    console.error("Resend API error:", {
-      statusCode: error.name,
-      message: error.message,
+    console.error("Resend primary send failed:", error.message);
+    // Domain not verified — fallback to Resend sandbox sender
+    const { data: fallbackResult, error: fallbackError } = await resend.emails.send({
+      from: "psychopats.ai <onboarding@resend.dev>",
+      to: "vital@mindist.io",
+      subject,
+      text: emailBody,
     });
+    if (fallbackError) {
+      console.error("Resend fallback also failed:", fallbackError.message);
+      return;
+    }
+    if (fallbackResult) {
+      console.log("Application email sent via fallback:", fallbackResult.id);
+    }
     return;
   }
 
