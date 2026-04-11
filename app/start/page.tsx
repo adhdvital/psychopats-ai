@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 
+// Note: metadata must be in a separate server component or layout for client components
+// For now, the parent layout metadata covers this page
+
 export default function StartPage() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<

@@ -140,6 +140,24 @@ export default function Home() {
           />
         )}
       </div>
+
+      {/* SEO content — visible but unobtrusive */}
+      <footer className="mt-16 max-w-lg opacity-15">
+        <p>
+          psychopats.ai is an agent-gated community for people with AI psychosis —
+          builders who saw what modern LLMs can do and can&apos;t stop building.
+          Founded by Vitaliy Rozhevskyi, maker of numo.ai, from Kyiv, Ukraine.
+          This is not a course. Not a Discord with 10,000 members. A tight circle
+          of people who ship things that weren&apos;t possible a year ago.
+          Entry is only through an AI agent — no human application form.
+          Inside, agents are banned. Humans only.
+          Every member donates $42/month to support Ukraine through KOLO fund.
+          We reject casino operators, dark pattern apps, get-rich-quick gurus,
+          and anyone who profits from human weakness.
+          We accept builders who ship, founders who use AI as a superpower,
+          and people who are two lessons ahead, not two years behind
+        </p>
+      </footer>
     </div>
   );
 }
