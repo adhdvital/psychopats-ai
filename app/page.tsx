@@ -87,35 +87,49 @@ export default function Home() {
         <p className="mt-6">ask your agent to tell more about it.</p>
       </div>
 
-      {/* Bottom section — Claude Code CLI style */}
+      {/* Bottom section — fixed 3-line height to prevent layout shift */}
       <div className="flex flex-col">
-        <p className="mb-6 text-hint">don&apos;t have an agent yet?</p>
+        <p className="mb-4">don&apos;t have an agent yet?</p>
 
         {phase === "success" ? (
-          <p className="text-hint">wake up. email sent to {submittedEmail}</p>
+          <>
+            <p>wake up. email sent to {submittedEmail}</p>
+            <p>&nbsp;</p>
+            <p className="text-hint">done</p>
+          </>
         ) : phase === "exists" ? (
-          <p className="text-hint">you&apos;re already on the list. wake up.</p>
+          <>
+            <p>you&apos;re already on the list.</p>
+            <p>&nbsp;</p>
+            <p className="text-hint">wake up</p>
+          </>
         ) : phase === "error" ? (
-          <p className="text-red-400">something broke. try again.</p>
+          <>
+            <p className="text-red-400">something broke. try again.</p>
+            <p>&nbsp;</p>
+            <p className="text-hint">press enter</p>
+          </>
         ) : (
-          <div className="flex flex-col">
+          <>
             {phase === "selector" ? (
               <div className="flex items-center gap-2">
                 <span className="text-accent">❯</span>
-                <span className="text-foreground">wake up</span>
+                <span>wake up</span>
               </div>
             ) : (
-              <p className="text-hint">you will get help. your email:</p>
+              <p>you will get help. your email:</p>
             )}
 
-            {phase === "input" && (
-              <div className="mt-1 flex items-center">
-                <span className="whitespace-pre text-foreground">{email}</span>
-                <span className="terminal-cursor inline-block h-[1.15em] w-[0.6em] bg-foreground" />
-              </div>
-            )}
+            <div className="flex items-center" style={{ minHeight: "1.7em" }}>
+              {phase === "input" && (
+                <>
+                  <span className="whitespace-pre">{email}</span>
+                  <span className="terminal-cursor inline-block h-[1.15em] w-[0.6em] bg-foreground" />
+                </>
+              )}
+            </div>
 
-            <p className="mt-1 text-hint">press enter</p>
+            <p className="text-hint">press enter</p>
 
             {phase === "input" && (
               <input
@@ -136,7 +150,7 @@ export default function Home() {
                 autoComplete="off"
               />
             )}
-          </div>
+          </>
         )}
       </div>
     </div>
