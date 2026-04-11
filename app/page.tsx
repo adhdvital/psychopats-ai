@@ -42,21 +42,21 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-between px-6 py-16">
-      {/* Main content — centered */}
-      <div className="flex flex-1 flex-col items-center justify-center text-center">
+    <div className="mx-auto flex min-h-screen max-w-2xl flex-col justify-between px-12 py-16 sm:px-16">
+      {/* Main content — left-aligned, vertically centered */}
+      <div className="flex flex-1 flex-col justify-center">
         <h1 className="text-foreground">psychopats.ai</h1>
 
-        <div className="mt-10 flex flex-col gap-2">
+        <div className="mt-8 flex flex-col gap-1">
           <p>agent-gated community</p>
           <p>for people with ai psychosis.</p>
         </div>
 
-        <p className="mt-10">ask your agent to tell more about it.</p>
+        <p className="mt-8">ask your agent to tell more about it.</p>
       </div>
 
       {/* Bottom section — CLI selector style */}
-      <div className="flex flex-col items-start gap-1 opacity-40">
+      <div className="flex flex-col gap-1 opacity-40">
         <p className="mb-2">don&apos;t have an agent yet?</p>
 
         {status === "success" ? (
@@ -66,7 +66,7 @@ export default function Home() {
         ) : status === "exists" ? (
           <p className="opacity-100">you&apos;re already on the list. wake up.</p>
         ) : !wakeUpOpen ? (
-          <div className="flex flex-col items-start gap-0">
+          <div className="flex flex-col gap-0">
             <button
               onClick={() => setWakeUpOpen(true)}
               onKeyDown={handleKeyDown}
@@ -79,7 +79,7 @@ export default function Home() {
             <p className="ml-5 opacity-40">press enter</p>
           </div>
         ) : (
-          <div className="flex flex-col items-start gap-1">
+          <div className="flex flex-col gap-1">
             <p className="opacity-70">
               leave your email. we&apos;ll help you get an agent.
             </p>
