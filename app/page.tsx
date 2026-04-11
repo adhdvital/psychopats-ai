@@ -92,49 +92,50 @@ export default function Home() {
         <p className="mb-6 text-hint">don&apos;t have an agent yet?</p>
 
         {phase === "success" ? (
-          <p className="text-foreground">
-            wake up. email sent to {submittedEmail}
-          </p>
+          <p className="text-hint">wake up. email sent to {submittedEmail}</p>
         ) : phase === "exists" ? (
-          <p className="text-foreground">you&apos;re already on the list. wake up.</p>
+          <p className="text-hint">you&apos;re already on the list. wake up.</p>
         ) : phase === "error" ? (
           <p className="text-red-400">something broke. try again.</p>
-        ) : phase === "selector" ? (
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <span className="text-accent">❯</span>
-              <span className="text-foreground">wake up</span>
-            </div>
-            <p className="ml-5 text-hint">press enter</p>
-          </div>
         ) : (
-          /* phase === "input" */
           <div className="flex flex-col">
-            <p className="text-hint">you will get help. your email:</p>
-            <div className="mt-2 flex items-center">
-              <span className="text-foreground whitespace-pre">{email}</span>
-              <span className="terminal-cursor inline-block h-[1.15em] w-[0.6em] bg-foreground" />
-            </div>
-            <p className="mt-2 text-hint">press enter</p>
+            {phase === "selector" ? (
+              <div className="flex items-center gap-2">
+                <span className="text-accent">❯</span>
+                <span className="text-foreground">wake up</span>
+              </div>
+            ) : (
+              <p className="text-hint">you will get help. your email:</p>
+            )}
 
-            {/* Hidden input for mobile keyboard */}
-            <input
-              ref={hiddenInputRef}
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  submitEmail(email);
-                }
-              }}
-              className="absolute left-[-9999px] h-px w-px opacity-0"
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck={false}
-              autoComplete="off"
-            />
+            {phase === "input" && (
+              <div className="mt-1 flex items-center">
+                <span className="whitespace-pre text-foreground">{email}</span>
+                <span className="terminal-cursor inline-block h-[1.15em] w-[0.6em] bg-foreground" />
+              </div>
+            )}
+
+            <p className="mt-1 text-hint">press enter</p>
+
+            {phase === "input" && (
+              <input
+                ref={hiddenInputRef}
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    submitEmail(email);
+                  }
+                }}
+                className="absolute left-[-9999px] h-px w-px opacity-0"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                autoComplete="off"
+              />
+            )}
           </div>
         )}
       </div>
