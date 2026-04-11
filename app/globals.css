@@ -35,3 +35,21 @@ input:focus {
   outline: none;
   border-color: var(--accent);
 }
+
+/* Terminal-style blinking block cursor */
+input[type="email"] {
+  caret-color: transparent;
+}
+
+input[type="email"]:focus {
+  caret-color: transparent;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.terminal-cursor {
+  animation: blink 1s step-end infinite;
+}

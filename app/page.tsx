@@ -66,44 +66,44 @@ export default function Home() {
         ) : status === "exists" ? (
           <p className="opacity-100">you&apos;re already on the list. wake up.</p>
         ) : !wakeUpOpen ? (
-          <button
-            onClick={() => setWakeUpOpen(true)}
-            onKeyDown={handleKeyDown}
-            className="cursor-pointer border-none bg-transparent p-0 text-foreground opacity-100 transition-opacity hover:opacity-80"
-            style={{ font: "inherit", fontSize: "inherit" }}
-            autoFocus
-          >
-            <span className="text-accent">&gt;</span> wake up, it is april 2026
-            <span className="ml-4 opacity-40">press enter</span>
-          </button>
+          <div className="flex flex-col items-start gap-0">
+            <button
+              onClick={() => setWakeUpOpen(true)}
+              onKeyDown={handleKeyDown}
+              className="cursor-pointer border-none bg-transparent p-0 text-left text-foreground opacity-100 transition-opacity hover:opacity-80"
+              style={{ font: "inherit", fontSize: "inherit" }}
+              autoFocus
+            >
+              <span className="text-accent">&gt;</span> wake up, it is april 2026
+            </button>
+            <p className="ml-5 opacity-40">press enter</p>
+          </div>
         ) : (
-          <div className="flex flex-col items-start gap-3">
+          <div className="flex flex-col items-start gap-1">
             <p className="opacity-70">
               leave your email. we&apos;ll help you get an agent.
             </p>
             <form
               onSubmit={handleSubmit}
-              className="flex items-center gap-2"
+              className="relative"
             >
-              <span className="text-accent">&gt;</span>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                required
-                autoFocus
-                className="w-56 border-b border-foreground/20 bg-transparent px-1 py-2 text-foreground transition-colors sm:w-64"
-              />
-              <button
-                type="submit"
-                disabled={status === "loading"}
-                className="cursor-pointer border-none bg-transparent text-foreground transition-opacity hover:opacity-70 disabled:opacity-30"
-                style={{ font: "inherit", fontSize: "inherit" }}
-              >
-                {status === "loading" ? "..." : "↵"}
-              </button>
+              <div className="relative inline-flex items-center">
+                <span className="pointer-events-none whitespace-pre text-foreground">
+                  {email}
+                </span>
+                <span className="terminal-cursor inline-block h-[1.2em] w-[0.6em] bg-foreground" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoFocus
+                  className="absolute inset-0 w-full border-none bg-transparent text-transparent outline-none"
+                  style={{ caretColor: "transparent" }}
+                />
+              </div>
             </form>
+            <p className="opacity-40">press enter</p>
           </div>
         )}
 
