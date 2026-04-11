@@ -1,53 +1,85 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 export default function Home() {
-  const [wakeUpOpen, setWakeUpOpen] = useState(false);
+  const [phase, setPhase] = useState<"selector" | "input" | "success" | "exists" | "error">("selector");
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<
-    "idle" | "loading" | "success" | "error" | "exists"
-  >("idle");
   const [submittedEmail, setSubmittedEmail] = useState("");
+  const hiddenInputRef = useRef<HTMLInputElement>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!email) return;
+  const submitEmail = useCallback(async (emailValue: string) => {
+    if (!emailValue || !emailValue.includes("@") || !emailValue.includes(".")) return;
 
-    setStatus("loading");
     try {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: emailValue }),
       });
       const data = await res.json();
       if (data.status === "already_subscribed") {
-        setStatus("exists");
+        setPhase("exists");
       } else if (data.status === "subscribed") {
-        setSubmittedEmail(email);
-        setStatus("success");
+        setSubmittedEmail(emailValue);
+        setPhase("success");
       } else {
-        setStatus("error");
+        setPhase("error");
       }
     } catch {
-      setStatus("error");
+      setPhase("error");
     }
-  }
+  }, []);
 
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === "Enter") {
-      setWakeUpOpen(true);
+  // Global keyboard listener
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      // Don't capture if user is in another input/textarea
+      const active = document.activeElement as HTMLElement;
+      if (active?.tagName === "INPUT" || active?.tagName === "TEXTAREA") {
+        if (active !== hiddenInputRef.current) return;
+      }
+
+      if (phase === "selector") {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          setPhase("input");
+        }
+      } else if (phase === "input") {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          submitEmail(email);
+        } else if (e.key === "Backspace") {
+          e.preventDefault();
+          setEmail((v) => v.slice(0, -1));
+        } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          e.preventDefault();
+          setEmail((v) => v + e.key);
+        }
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [phase, email, submitEmail]);
+
+  // Focus hidden input for mobile keyboard
+  function focusMobile() {
+    if (phase === "input") {
+      hiddenInputRef.current?.focus();
     }
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-2xl flex-col justify-between px-12 py-16 sm:px-16">
+    <div
+      className="mx-auto flex min-h-screen max-w-2xl flex-col justify-between px-12 py-16 sm:px-16"
+      onClick={focusMobile}
+    >
       {/* Main content — left-aligned, vertically centered */}
       <div className="flex flex-1 flex-col justify-center">
         <h1 className="text-foreground">psychopats.ai</h1>
 
-        <div className="mt-8 flex flex-col gap-1">
+        <div className="mt-8 flex flex-col">
           <p>agent-gated community</p>
           <p>for people with ai psychosis.</p>
         </div>
@@ -55,62 +87,55 @@ export default function Home() {
         <p className="mt-8">ask your agent to tell more about it.</p>
       </div>
 
-      {/* Bottom section — CLI selector style */}
-      <div className="flex flex-col gap-1 opacity-40">
-        <p className="mb-2">don&apos;t have an agent yet?</p>
+      {/* Bottom section — Claude Code CLI style */}
+      <div className="flex flex-col">
+        <p className="text-hint mb-4">don&apos;t have an agent yet?</p>
 
-        {status === "success" ? (
-          <p className="opacity-100">
+        {phase === "success" ? (
+          <p className="text-foreground">
             wake up. email sent to {submittedEmail}
           </p>
-        ) : status === "exists" ? (
-          <p className="opacity-100">you&apos;re already on the list. wake up.</p>
-        ) : !wakeUpOpen ? (
-          <div className="flex flex-col gap-0">
-            <button
-              onClick={() => setWakeUpOpen(true)}
-              onKeyDown={handleKeyDown}
-              className="cursor-pointer border-none bg-transparent p-0 text-left text-foreground opacity-100 transition-opacity hover:opacity-80"
-              style={{ font: "inherit", fontSize: "inherit" }}
-              autoFocus
-            >
-              <span className="text-accent">&gt;</span> wake up, it is april 2026
-            </button>
-            <p className="ml-5 opacity-40">press enter</p>
+        ) : phase === "exists" ? (
+          <p className="text-foreground">you&apos;re already on the list. wake up.</p>
+        ) : phase === "error" ? (
+          <p className="text-red-400">something broke. try again.</p>
+        ) : phase === "selector" ? (
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <span className="text-accent">❯</span>
+              <span className="text-foreground">wake up</span>
+            </div>
+            <p className="ml-5 text-hint">press enter</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-1">
-            <p className="opacity-70">
-              leave your email. we&apos;ll help you get an agent.
-            </p>
-            <form
-              onSubmit={handleSubmit}
-              className="relative"
-            >
-              <div className="relative inline-flex items-center">
-                <span className="pointer-events-none whitespace-pre text-foreground">
-                  {email}
-                </span>
-                <span className="terminal-cursor inline-block h-[1.2em] w-[0.6em] bg-foreground" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  autoFocus
-                  className="absolute inset-0 w-full border-none bg-transparent text-transparent outline-none"
-                  style={{ caretColor: "transparent" }}
-                />
-              </div>
-            </form>
-            <p className="opacity-40">press enter</p>
-          </div>
-        )}
+          /* phase === "input" */
+          <div className="flex flex-col">
+            <p className="text-hint">you will get help. your email:</p>
+            <div className="mt-2 flex items-center">
+              <span className="text-foreground whitespace-pre">{email}</span>
+              <span className="terminal-cursor inline-block h-[1.15em] w-[0.6em] bg-foreground" />
+            </div>
+            <p className="mt-2 text-hint">press enter</p>
 
-        {status === "error" && (
-          <p className="text-red-400 opacity-100">
-            something broke. try again.
-          </p>
+            {/* Hidden input for mobile keyboard */}
+            <input
+              ref={hiddenInputRef}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  submitEmail(email);
+                }
+              }}
+              className="absolute left-[-9999px] h-px w-px opacity-0"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              autoComplete="off"
+            />
+          </div>
         )}
       </div>
     </div>

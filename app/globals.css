@@ -1,24 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  --background: #080a09;
-  --foreground: #e8f5e9;
-  --accent: #39ff6e;
+  --background: #1a1b26;
+  --foreground: #e1e2e7;
+  --accent: #B1B9F9;
+  --hint: #666666;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-accent: var(--accent);
-  --font-mono: Monaco, 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+  --color-hint: var(--hint);
+  --font-mono: 'SF Mono', Menlo, Monaco, 'Cascadia Code', 'Courier New', monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-mono);
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-ligatures: none;
 }
 
 ::selection {
@@ -33,23 +38,12 @@ input::placeholder {
 
 input:focus {
   outline: none;
-  border-color: var(--accent);
-}
-
-/* Terminal-style blinking block cursor */
-input[type="email"] {
-  caret-color: transparent;
-}
-
-input[type="email"]:focus {
-  caret-color: transparent;
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
 
 .terminal-cursor {
-  animation: blink 1s step-end infinite;
+  animation: blink 1s steps(2) infinite;
 }
