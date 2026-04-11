@@ -75,19 +75,19 @@ export default function Home() {
       <div className="flex flex-col">
         <p className="mb-4">don&apos;t have an agent yet?</p>
 
-        {/* Line 1: label */}
+        {/* Line 1 */}
         {phase === "selector" ? (
           <div className="flex items-center gap-2">
             <span className="text-accent">❯</span>
             <span>wake up</span>
           </div>
-        ) : phase === "success" || phase === "exists" || phase === "error" ? (
-          <p>&nbsp;</p>
-        ) : (
+        ) : phase === "input" ? (
           <p>email:</p>
+        ) : (
+          <p>&nbsp;</p>
         )}
 
-        {/* Line 2: input / result */}
+        {/* Line 2 */}
         <div className="flex items-center" style={{ minHeight: "1.7em" }}>
           {phase === "input" && (
             <>
@@ -96,17 +96,23 @@ export default function Home() {
               <span className="terminal-cursor inline-block h-[1.15em] w-[0.6em] bg-foreground" />
             </>
           )}
-          {phase === "success" && <p>sent to {submittedEmail}</p>}
-          {phase === "exists" && <p>already here</p>}
-          {phase === "error" && <p className="text-red-400">something broke</p>}
+          {phase === "success" && <span>sent to {submittedEmail}</span>}
+          {phase === "exists" && <span>already here</span>}
+          {phase === "error" && <span className="text-red-400">something broke</span>}
         </div>
 
-        {/* Line 3: hint */}
-        <p className="text-hint">
-          {phase === "success" || phase === "exists" || phase === "error"
-            ? "press enter to refresh"
-            : "press enter"}
-        </p>
+        {/* Line 3 */}
+        <div style={{ minHeight: "1.7em" }}>
+          {(phase === "success" || phase === "exists" || phase === "error") && (
+            <div className="flex items-center gap-2">
+              <span className="text-accent">❯</span>
+              <span>refresh</span>
+            </div>
+          )}
+        </div>
+
+        {/* Line 4: hint */}
+        <p className="text-hint">press enter</p>
 
         {phase === "input" && (
           <input
