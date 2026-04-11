@@ -199,18 +199,20 @@ export async function POST(request: Request) {
       throw dbError;
     }
 
-    // Send email notification (fire-and-forget, errors logged)
-    sendApplicationEmail({
-      name: safeName,
-      email: normalized,
-      whatYouBuild: safeWhatYouBuild,
-      whyYouWantIn: safeWhyYouWantIn || undefined,
-      socialLinks: safeSocialLinks ?? undefined,
-      appliedVia: safeAppliedVia,
-      agentName: safeAgentName ?? undefined,
-    }).catch((emailError) => {
+    // Send email notification (awaited to prevent Vercel lambda freeze before delivery)
+    try {
+      await sendApplicationEmail({
+        name: safeName,
+        email: normalized,
+        whatYouBuild: safeWhatYouBuild,
+        whyYouWantIn: safeWhyYouWantIn || undefined,
+        socialLinks: safeSocialLinks ?? undefined,
+        appliedVia: safeAppliedVia,
+        agentName: safeAgentName ?? undefined,
+      });
+    } catch (emailError) {
       console.error("Email send failed:", emailError);
-    });
+    }
 
     return NextResponse.json({
       status: "success",
