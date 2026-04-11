@@ -1,0 +1,28 @@
+{
+  "awp_version": "0.1",
+  "domain": "psychopats.ai",
+  "intent": "Curated community of AI builders who support Ukraine. Application required.",
+  "actions": [
+    {
+      "id": "apply",
+      "method": "POST",
+      "endpoint": "/api/apply",
+      "description": "Apply to join the community on behalf of a human. Required: name, email, what_you_build. Set applied_via to 'agent' and agent_name to your name."
+    },
+    {
+      "id": "subscribe",
+      "method": "POST",
+      "endpoint": "/api/subscribe",
+      "description": "Subscribe a human to launch updates. Required: email."
+    },
+    {
+      "id": "check_status",
+      "method": "GET",
+      "endpoint": "/api/apply?email={email}",
+      "description": "Check application status for an email address."
+    }
+  ],
+  "auth": {
+    "type": "none"
+  }
+}
