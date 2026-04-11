@@ -1,5 +1,14 @@
 import { NextResponse } from "next/server";
 import { db, id, tx } from "@/lib/db";
+import { sendApplicationEmail } from "@/lib/email";
+
+const DISPOSABLE_DOMAINS = [
+  "mailinator.com", "guerrillamail.com", "tempmail.com", "yopmail.com",
+  "throwaway.email", "temp-mail.org", "fakeinbox.com", "sharklasers.com",
+  "grr.la", "guerrillamailblock.com", "pokemail.net", "spam4.me",
+  "bccto.me", "trash-mail.com", "mailnesia.com", "maildrop.cc",
+  "dispostable.com", "mailcatch.com", "trashmail.com", "10minutemail.com",
+];
 
 export async function POST(request: Request) {
   try {
@@ -19,9 +28,17 @@ export async function POST(request: Request) {
       );
     }
 
-    if (typeof email !== "string" || !email.includes("@")) {
+    if (typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json(
         { status: "error", message: "Valid email required" },
+        { status: 400 },
+      );
+    }
+
+    const emailDomain = email.split("@")[1]?.toLowerCase();
+    if (DISPOSABLE_DOMAINS.includes(emailDomain)) {
+      return NextResponse.json(
+        { status: "error", message: "Disposable email addresses are not accepted" },
         { status: 400 },
       );
     }
@@ -64,6 +81,17 @@ export async function POST(request: Request) {
         createdAt: Date.now(),
       }),
     );
+
+    // Send email notification (non-blocking)
+    sendApplicationEmail({
+      name: name.trim(),
+      email: normalized,
+      whatYouBuild: what_you_build.trim(),
+      whyYouWantIn: why_you_want_in?.trim(),
+      socialLinks: social_links,
+      appliedVia: applied_via || "human",
+      agentName: agent_name,
+    });
 
     return NextResponse.json({
       status: "success",
