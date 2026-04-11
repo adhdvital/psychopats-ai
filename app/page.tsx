@@ -72,24 +72,24 @@ export default function Home() {
 
   return (
     <div
-      className="mx-auto flex min-h-screen max-w-2xl flex-col justify-between px-12 py-16 sm:px-16"
+      className="mx-auto flex min-h-screen max-w-4xl flex-col justify-between px-16 pb-10 pt-24 sm:px-20"
       onClick={focusMobile}
     >
       {/* Main content — left-aligned, vertically centered */}
       <div className="flex flex-1 flex-col justify-center">
-        <h1 className="text-foreground">psychopats.ai</h1>
+        <h1 className="text-[2.5rem] leading-tight text-foreground">psychopats.ai</h1>
 
-        <div className="mt-8 flex flex-col">
+        <div className="mt-12 flex flex-col">
           <p>agent-gated community</p>
           <p>for people with ai psychosis.</p>
         </div>
 
-        <p className="mt-8">ask your agent to tell more about it.</p>
+        <p className="mt-6">ask your agent to tell more about it.</p>
       </div>
 
       {/* Bottom section — Claude Code CLI style */}
       <div className="flex flex-col">
-        <p className="text-hint mb-4">don&apos;t have an agent yet?</p>
+        <p className="mb-6 text-hint">don&apos;t have an agent yet?</p>
 
         {phase === "success" ? (
           <p className="text-foreground">
