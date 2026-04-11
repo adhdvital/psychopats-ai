@@ -75,61 +75,52 @@ export default function Home() {
       <div className="flex flex-col">
         <p className="mb-4">don&apos;t have an agent yet?</p>
 
-        {phase === "success" ? (
-          <>
-            <p className="text-hint">sent to {submittedEmail}</p>
-            <p>&nbsp;</p>
-            <p className="text-hint">press enter to refresh</p>
-          </>
-        ) : phase === "exists" ? (
-          <>
-            <p className="text-hint">already here</p>
-            <p>&nbsp;</p>
-            <p className="text-hint">press enter to refresh</p>
-          </>
-        ) : phase === "error" ? (
-          <>
-            <p className="text-red-400">something broke</p>
-            <p>&nbsp;</p>
-            <p className="text-hint">press enter to refresh</p>
-          </>
+        {/* Line 1: label */}
+        {phase === "selector" ? (
+          <div className="flex items-center gap-2">
+            <span className="text-accent">❯</span>
+            <span>wake up</span>
+          </div>
+        ) : phase === "success" || phase === "exists" || phase === "error" ? (
+          <p>&nbsp;</p>
         ) : (
-          <>
-            {phase === "selector" ? (
-              <div className="flex items-center gap-2">
-                <span className="text-accent">❯</span>
-                <span>wake up</span>
-              </div>
-            ) : (
-              <p>email:</p>
-            )}
+          <p>email:</p>
+        )}
 
-            <div className="flex items-center" style={{ minHeight: "1.7em" }}>
-              {phase === "input" && (
-                <>
-                  <span className="whitespace-pre">{email}</span>
-                  <span className="terminal-cursor inline-block h-[1.15em] w-[0.6em] bg-foreground" />
-                </>
-              )}
-            </div>
+        {/* Line 2: input / result */}
+        <div className="flex items-center" style={{ minHeight: "1.7em" }}>
+          {phase === "input" && (
+            <>
+              <span className="text-accent mr-2">❯</span>
+              <span className="whitespace-pre">{email}</span>
+              <span className="terminal-cursor inline-block h-[1.15em] w-[0.6em] bg-foreground" />
+            </>
+          )}
+          {phase === "success" && <p>sent to {submittedEmail}</p>}
+          {phase === "exists" && <p>already here</p>}
+          {phase === "error" && <p className="text-red-400">something broke</p>}
+        </div>
 
-            <p className="text-hint">press enter</p>
+        {/* Line 3: hint */}
+        <p className="text-hint">
+          {phase === "success" || phase === "exists" || phase === "error"
+            ? "press enter to refresh"
+            : "press enter"}
+        </p>
 
-            {phase === "input" && (
-              <input
-                ref={hiddenInputRef}
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submitEmail(email); } }}
-                className="absolute left-[-9999px] h-px w-px opacity-0"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                autoComplete="off"
-              />
-            )}
-          </>
+        {phase === "input" && (
+          <input
+            ref={hiddenInputRef}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); submitEmail(email); } }}
+            className="absolute left-[-9999px] h-px w-px opacity-0"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            autoComplete="off"
+          />
         )}
       </div>
     </div>
