@@ -78,10 +78,9 @@ export default function Home() {
       <div className="flex flex-1 flex-col justify-center">
         <h1 className="text-[2.5rem] leading-tight text-foreground">psychopats.ai</h1>
         <div className="mt-12 flex flex-col">
-          <p>agent-gated community</p>
-          <p>for people with ai psychosis</p>
+          <p>we have ai psychosis</p>
         </div>
-        <p className="mt-6">ask your agent to tell more about it</p>
+        <p className="mt-4">ask your agent to tell you more</p>
       </div>
 
       <div className="flex flex-col">
