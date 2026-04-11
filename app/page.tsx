@@ -33,6 +33,7 @@ export default function Home() {
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
+      if (e.isComposing) return;
       const active = document.activeElement as HTMLElement;
       if (active?.tagName === "INPUT" || active?.tagName === "TEXTAREA") {
         if (active !== hiddenInputRef.current) return;
@@ -50,8 +51,19 @@ export default function Home() {
       }
     }
 
+    function handlePaste(e: ClipboardEvent) {
+      if (phase !== "input") return;
+      e.preventDefault();
+      const text = e.clipboardData?.getData("text") ?? "";
+      setEmail((v) => v + text.trim());
+    }
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("paste", handlePaste);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("paste", handlePaste);
+    };
   }, [phase, email, submitEmail]);
 
   function focusMobile() {
