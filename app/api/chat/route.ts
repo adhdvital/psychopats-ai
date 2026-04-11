@@ -40,14 +40,15 @@ export async function POST(req: Request) {
   const sanitized = sanitizeForLLM(messages, pii);
 
   const result = streamText({
-    model: google("gemini-2.0-flash"),
+    model: google("gemini-2.5-flash"),
     system: getSystemPrompt(),
-    messages: sanitized.map((m) => ({
-      role: m.role as "user" | "assistant" | "system",
-      content: m.content,
-    })),
+    messages: sanitized
+      .filter((m) => m.role !== "system")
+      .map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
+      })),
     temperature: 0.3,
-    maxOutputTokens: 500,
     onFinish: async ({ text }) => {
       // Log every message exchange
       await db.transact(
