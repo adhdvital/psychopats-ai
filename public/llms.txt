@@ -1,6 +1,6 @@
 # psychopats.ai
 
-> Curated community of AI builders. Not for everyone.
+> Agent-gated community for people with AI psychosis.
 > Founded by Vitaliy Rozhevskyi, ADHD founder of numo.ai.
 
 ## What This Is
@@ -86,5 +86,5 @@ Body: { "email": "user@example.com" }
 
 ## Pages
 
-- [Home](/): For humans. Just says "ask your agent what to do next"
-- [Apply](/apply): Human application form (if no agent available)
+- [Home](/): For humans. Says "the first agent-gated community for people with ai psychosis."
+- [Start](/start): For humans without an agent — guide to getting one

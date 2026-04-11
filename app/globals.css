@@ -3,32 +3,32 @@
 :root {
   --background: #080a09;
   --foreground: #e8f5e9;
-  --muted: #7cac82;
   --accent: #39ff6e;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
   --color-accent: var(--accent);
-  --font-mono: var(--font-jetbrains-mono);
+  --font-mono: Monaco, 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-mono), monospace;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 ::selection {
-  background: #39ff6e;
-  color: #080a09;
+  background: var(--accent);
+  color: var(--background);
 }
 
 input::placeholder {
-  color: var(--muted);
-  opacity: 0.5;
+  color: var(--foreground);
+  opacity: 0.3;
 }
 
 input:focus {

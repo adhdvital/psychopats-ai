@@ -1,18 +1,14 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-jetbrains-mono",
-});
 
 export const metadata: Metadata = {
   title: "psychopats.ai",
-  description: "Curated community of AI builders. Not for everyone.",
+  description:
+    "agent-gated community for people with ai psychosis.",
   openGraph: {
     title: "psychopats.ai",
-    description: "Curated community of AI builders. Not for everyone.",
+    description:
+      "agent-gated community for people with ai psychosis.",
     url: "https://psychopats.ai",
     siteName: "psychopats.ai",
     type: "website",
@@ -20,7 +16,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "psychopats.ai",
-    description: "Curated community of AI builders. Not for everyone.",
+    description:
+      "agent-gated community for people with ai psychosis.",
   },
   robots: {
     index: true,
@@ -35,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={jetbrainsMono.variable}>
+    <html lang="en">
       <head>
         <script
           type="application/ld+json"
@@ -46,7 +43,7 @@ export default function RootLayout({
               name: "psychopats.ai",
               url: "https://psychopats.ai",
               description:
-                "Curated community of AI builders who support Ukraine.",
+                "Agent-gated community for people with AI psychosis.",
               founder: {
                 "@type": "Person",
                 name: "Vitaliy Rozhevskyi",
@@ -55,7 +52,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen font-mono">{children}</body>
+      <body className="min-h-screen">{children}</body>
     </html>
   );
 }
