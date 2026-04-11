@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useRef, useState } from "react";
 
 export default function ApplyPage() {
   const [form, setForm] = useState({
@@ -11,6 +12,7 @@ export default function ApplyPage() {
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "rate_limited" | "error"
   >("idle");
+  const honeypotRef = useRef<HTMLInputElement>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -23,6 +25,7 @@ export default function ApplyPage() {
         body: JSON.stringify({
           ...form,
           applied_via: "human",
+          honeypot: honeypotRef.current?.value || "",
         }),
       });
       const data = await res.json();
@@ -47,11 +50,11 @@ export default function ApplyPage() {
           <p className="text-sm text-muted">
             we review applications weekly.
             <br />
-            you'll hear from us.
+            you&apos;ll hear from us.
           </p>
-          <a href="/" className="text-xs text-muted/50 hover:text-accent">
-            ← back
-          </a>
+          <Link href="/" className="text-xs text-muted/50 hover:text-accent">
+            &larr; back
+          </Link>
         </div>
       </div>
     );
@@ -63,7 +66,7 @@ export default function ApplyPage() {
         <div className="flex flex-col gap-2">
           <h1 className="text-xl text-foreground">
             psychopats.ai
-            <span className="text-muted"> — human application</span>
+            <span className="text-muted"> &mdash; human application</span>
           </h1>
           <p className="text-sm text-muted">
             no agent? no problem. tell us about yourself.
@@ -78,6 +81,7 @@ export default function ApplyPage() {
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               required
+              maxLength={200}
               className="border-b border-muted/30 bg-transparent px-1 py-2 text-sm text-foreground transition-colors focus:border-accent"
             />
           </div>
@@ -89,6 +93,7 @@ export default function ApplyPage() {
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               required
+              maxLength={320}
               className="border-b border-muted/30 bg-transparent px-1 py-2 text-sm text-foreground transition-colors focus:border-accent"
             />
           </div>
@@ -102,18 +107,21 @@ export default function ApplyPage() {
                 setForm({ ...form, what_you_build: e.target.value })
               }
               required
+              maxLength={2000}
               className="border-b border-muted/30 bg-transparent px-1 py-2 text-sm text-foreground transition-colors focus:border-accent"
             />
           </div>
 
-          {/* Honeypot */}
-          <input
-            type="text"
-            name="honeypot"
-            className="absolute -left-[9999px]"
-            tabIndex={-1}
-            autoComplete="off"
-          />
+          {/* Honeypot -- invisible to humans, bots fill it */}
+          <div aria-hidden="true" style={{ position: "absolute", left: "-9999px" }}>
+            <input
+              type="text"
+              name="honeypot"
+              ref={honeypotRef}
+              tabIndex={-1}
+              autoComplete="off"
+            />
+          </div>
 
           <button
             type="submit"
@@ -126,7 +134,7 @@ export default function ApplyPage() {
 
         {status === "rate_limited" && (
           <p className="text-xs text-muted">
-            you've already applied. try again in 3 months.
+            you&apos;ve already applied. try again in 3 months.
           </p>
         )}
 
@@ -145,9 +153,9 @@ export default function ApplyPage() {
           </p>
         </div>
 
-        <a href="/" className="text-xs text-muted/30 hover:text-accent">
-          ← back
-        </a>
+        <Link href="/" className="text-xs text-muted/30 hover:text-accent">
+          &larr; back
+        </Link>
       </div>
     </div>
   );

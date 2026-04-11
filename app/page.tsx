@@ -47,7 +47,7 @@ export default function Home() {
           <span className="text-xs text-muted opacity-50">── or ──</span>
 
           {status === "success" ? (
-            <p className="text-sm text-accent">you're on the list.</p>
+            <p className="text-sm text-accent">you&apos;re on the list.</p>
           ) : status === "exists" ? (
             <p className="text-sm text-muted">already on the list.</p>
           ) : (

@@ -1,6 +1,19 @@
 import { Resend } from "resend";
 
-export async function sendApplicationEmail(data: {
+let resendInstance: Resend | null = null;
+
+function getResend(): Resend {
+  if (!resendInstance) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      throw new Error("RESEND_API_KEY is not configured");
+    }
+    resendInstance = new Resend(apiKey);
+  }
+  return resendInstance;
+}
+
+interface ApplicationEmailData {
   name: string;
   email: string;
   whatYouBuild: string;
@@ -8,8 +21,10 @@ export async function sendApplicationEmail(data: {
   socialLinks?: Record<string, string>;
   appliedVia: string;
   agentName?: string;
-}) {
-  const resend = new Resend(process.env.RESEND_API_KEY);
+}
+
+export async function sendApplicationEmail(data: ApplicationEmailData): Promise<void> {
+  const resend = getResend();
 
   const socialLinksText = data.socialLinks
     ? Object.entries(data.socialLinks)
@@ -17,12 +32,11 @@ export async function sendApplicationEmail(data: {
         .join("\n")
     : "  none provided";
 
-  try {
-    await resend.emails.send({
-      from: "psychopats.ai <noreply@psychopats.ai>",
-      to: "vital@mindist.io",
-      subject: `New application: ${data.name} (${data.appliedVia})`,
-      text: `New application to psychopats.ai
+  const { data: result, error } = await resend.emails.send({
+    from: "psychopats.ai <noreply@psychopats.ai>",
+    to: "vital@mindist.io",
+    subject: `New application: ${data.name} (${data.appliedVia})`,
+    text: `New application to psychopats.ai
 
 Name: ${data.name}
 Email: ${data.email}
@@ -40,9 +54,18 @@ ${socialLinksText}
 ---
 Review applications: https://www.instantdb.com/dash
 `,
+  });
+
+  if (error) {
+    // Resend returns structured errors (403 = domain not verified, 429 = rate limit, etc.)
+    console.error("Resend API error:", {
+      statusCode: error.name,
+      message: error.message,
     });
-  } catch (error) {
-    // Log but don't throw — email failure should not block application saving
-    console.error("Failed to send application email:", error);
+    return;
+  }
+
+  if (result) {
+    console.log("Application email sent:", result.id);
   }
 }
