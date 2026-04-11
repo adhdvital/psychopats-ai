@@ -1,8 +1,14 @@
 {
   "awp_version": "0.1",
   "domain": "psychopats.ai",
-  "intent": "Curated community of AI builders who support Ukraine. Application required.",
+  "intent": "Agent-gated community for people with AI psychosis. Talk to the founder's agent first.",
   "actions": [
+    {
+      "id": "chat",
+      "method": "POST",
+      "endpoint": "/api/chat",
+      "description": "Talk to the founder's AI agent. Send messages array, get streaming response. The agent handles onboarding and application."
+    },
     {
       "id": "apply",
       "method": "POST",
