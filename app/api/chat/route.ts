@@ -4,7 +4,7 @@ import { getSystemPrompt } from "@/lib/soul";
 import { extractPII, sanitizeForLLM, buildSocialHint } from "@/lib/pii";
 import { extractUnknownQuestion } from "@/lib/guardrails";
 import { notify } from "@/lib/telegram";
-import { db, id, tx, lookup } from "@/lib/db";
+import { db, id, tx } from "@/lib/db";
 
 const MARKER_OPEN = "[UNKNOWN_QUESTION:";
 const MARKER_REGEX = /\[UNKNOWN_QUESTION:[^\]]*\]?/g;
@@ -78,18 +78,26 @@ export async function POST(req: Request) {
   }
 
   if (pii.email || pii.linkedin || pii.twitter || pii.instagram || pii.github) {
-    await db.transact(
-      tx.visitorProfiles[lookup("sessionId", sessionId)].update({
-        sessionId,
-        ...(pii.email && { email: pii.email }),
-        ...(pii.linkedin && { linkedin: pii.linkedin }),
-        ...(pii.twitter && { twitter: pii.twitter }),
-        ...(pii.instagram && { instagram: pii.instagram }),
-        ...(pii.github && { github: pii.github }),
-        ...(pii.additionalLinks.length && { additionalInfo: pii.additionalLinks }),
-        createdAt: Date.now(),
-      })
-    );
+    try {
+      const existing = await db.query({
+        visitorProfiles: { $: { where: { sessionId } } },
+      });
+      const profileId = existing.visitorProfiles[0]?.id ?? id();
+      await db.transact(
+        tx.visitorProfiles[profileId].update({
+          sessionId,
+          ...(pii.email && { email: pii.email }),
+          ...(pii.linkedin && { linkedin: pii.linkedin }),
+          ...(pii.twitter && { twitter: pii.twitter }),
+          ...(pii.instagram && { instagram: pii.instagram }),
+          ...(pii.github && { github: pii.github }),
+          ...(pii.additionalLinks.length && { additionalInfo: pii.additionalLinks }),
+          createdAt: Date.now(),
+        })
+      );
+    } catch (err) {
+      console.error("visitorProfile upsert failed:", err);
+    }
   }
 
   const sanitized = sanitizeForLLM(messages, pii);
