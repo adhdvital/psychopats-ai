@@ -37,6 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="ai" href="/llms.txt" />
         <link
           rel="alternate"
           type="text/plain"
