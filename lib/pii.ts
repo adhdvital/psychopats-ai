@@ -42,27 +42,29 @@ export function extractPII(
   return result;
 }
 
+const SOCIAL_KEYS = ["linkedin", "twitter", "instagram", "github"] as const;
+
 export function sanitizeForLLM(
   messages: { role: string; content: string }[],
   pii: ExtractedPII
 ): { role: string; content: string }[] {
-  const socials = ["linkedin", "twitter", "instagram", "github"] as const;
-  const provided = socials.filter((s) => pii[s]);
-
   return messages.map((m) => {
     if (m.role !== "user") return m;
 
     let content = m.content;
 
     if (pii.email) content = content.replaceAll(pii.email, "[EMAIL_PROVIDED]");
-    for (const s of socials) {
+    for (const s of SOCIAL_KEYS) {
       const url = pii[s];
       if (url) content = content.replaceAll(url, `[${s.toUpperCase()}_PROVIDED]`);
     }
 
     return { ...m, content };
-  }).concat({
-    role: "system",
-    content: `user provided ${provided.length}/4 social links: ${provided.join(", ") || "none"}`,
   });
+}
+
+export function buildSocialHint(pii: ExtractedPII): string {
+  const provided = SOCIAL_KEYS.filter((s) => pii[s]);
+  const missing = SOCIAL_KEYS.filter((s) => !pii[s]);
+  return `SOCIAL_LINKS_STATE: user has provided ${provided.length}/4 social links. provided: ${provided.join(", ") || "none"}. missing: ${missing.join(", ") || "none"}.`;
 }

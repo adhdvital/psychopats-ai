@@ -1,10 +1,63 @@
 import { streamText } from "ai";
 import { google } from "@ai-sdk/google";
 import { getSystemPrompt } from "@/lib/soul";
-import { extractPII, sanitizeForLLM } from "@/lib/pii";
+import { extractPII, sanitizeForLLM, buildSocialHint } from "@/lib/pii";
 import { extractUnknownQuestion } from "@/lib/guardrails";
 import { notify } from "@/lib/telegram";
-import { db, id, tx } from "@/lib/db";
+import { db, id, tx, lookup } from "@/lib/db";
+
+const MARKER_OPEN = "[UNKNOWN_QUESTION:";
+const MARKER_REGEX = /\[UNKNOWN_QUESTION:[^\]]*\]?/g;
+
+function buildMarkerStripper(): TransformStream<Uint8Array, Uint8Array> {
+  const decoder = new TextDecoder();
+  const encoder = new TextEncoder();
+  let buffer = "";
+  let inMarker = false;
+  const SAFETY = MARKER_OPEN.length + 8;
+
+  return new TransformStream({
+    transform(chunk, controller) {
+      buffer += decoder.decode(chunk, { stream: true });
+
+      if (inMarker) {
+        const close = buffer.indexOf("]");
+        if (close === -1) {
+          buffer = "";
+          return;
+        }
+        buffer = buffer.slice(close + 1);
+        inMarker = false;
+      }
+
+      const open = buffer.indexOf(MARKER_OPEN);
+      if (open !== -1) {
+        const before = buffer.slice(0, open);
+        if (before) controller.enqueue(encoder.encode(before));
+        const rest = buffer.slice(open + MARKER_OPEN.length);
+        const close = rest.indexOf("]");
+        if (close === -1) {
+          inMarker = true;
+          buffer = "";
+        } else {
+          buffer = rest.slice(close + 1);
+        }
+        return;
+      }
+
+      if (buffer.length > SAFETY) {
+        const safe = buffer.slice(0, -SAFETY);
+        controller.enqueue(encoder.encode(safe));
+        buffer = buffer.slice(-SAFETY);
+      }
+    },
+    flush(controller) {
+      if (!buffer) return;
+      const cleaned = buffer.replace(MARKER_REGEX, "").trim();
+      if (cleaned) controller.enqueue(encoder.encode(cleaned));
+    },
+  });
+}
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
@@ -15,7 +68,6 @@ export async function POST(req: Request) {
   const { messages, sessionId: incomingSessionId, metadata } = body;
   const sessionId = incomingSessionId || crypto.randomUUID();
 
-  // Store PII directly in DB — never send to LLM
   const pii = extractPII(messages);
   if (metadata?.email) pii.email = metadata.email;
   if (metadata?.socials) {
@@ -27,45 +79,47 @@ export async function POST(req: Request) {
 
   if (pii.email || pii.linkedin || pii.twitter || pii.instagram || pii.github) {
     await db.transact(
-      tx.visitorProfiles[id()].update({
+      tx.visitorProfiles[lookup("sessionId", sessionId)].update({
         sessionId,
-        ...pii,
-        additionalInfo: pii.additionalLinks.length ? pii.additionalLinks : undefined,
+        ...(pii.email && { email: pii.email }),
+        ...(pii.linkedin && { linkedin: pii.linkedin }),
+        ...(pii.twitter && { twitter: pii.twitter }),
+        ...(pii.instagram && { instagram: pii.instagram }),
+        ...(pii.github && { github: pii.github }),
+        ...(pii.additionalLinks.length && { additionalInfo: pii.additionalLinks }),
         createdAt: Date.now(),
       })
     );
   }
 
-  // Sanitize messages — replace PII with placeholders
   const sanitized = sanitizeForLLM(messages, pii);
+  const systemPrompt = `${getSystemPrompt()}\n\n<RUNTIME_STATE>\n${buildSocialHint(pii)}\n</RUNTIME_STATE>`;
 
   const result = streamText({
     model: google("gemini-2.5-flash"),
-    system: getSystemPrompt(),
-    messages: sanitized
-      .filter((m) => m.role !== "system")
-      .map((m) => ({
-        role: m.role as "user" | "assistant",
-        content: m.content,
-      })),
+    system: systemPrompt,
+    messages: sanitized.map((m) => ({
+      role: m.role as "user" | "assistant",
+      content: m.content,
+    })),
     temperature: 0.3,
     onFinish: async ({ text }) => {
-      // Log every message exchange
+      const question = extractUnknownQuestion(text);
+      const cleanedText = text.replace(MARKER_REGEX, "").trim();
+
       await db.transact(
         tx.conversations[id()].update({
           sessionId,
           messages: JSON.stringify(messages),
-          lastResponse: text,
+          lastResponse: cleanedText,
           visitorAgent: req.headers.get("user-agent") || "unknown",
           status: "active",
-          hasUnknownQuestion: !!extractUnknownQuestion(text),
+          hasUnknownQuestion: !!question,
           createdAt: Date.now(),
           updatedAt: Date.now(),
         })
       );
 
-      // Handle unknown questions
-      const question = extractUnknownQuestion(text);
       if (question) {
         await db.transact(
           tx.unknownQuestions[id()].update({
@@ -83,7 +137,12 @@ export async function POST(req: Request) {
     },
   });
 
-  const response = result.toTextStreamResponse();
+  const baseResponse = result.toTextStreamResponse();
+  const stripped = baseResponse.body!.pipeThrough(buildMarkerStripper());
+  const response = new Response(stripped, {
+    status: baseResponse.status,
+    headers: baseResponse.headers,
+  });
   response.headers.set("X-Session-Id", sessionId);
   return response;
 }
