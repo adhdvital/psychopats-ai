@@ -2,11 +2,24 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 
+const PROMPT = "what is psychopats.ai community?";
+
 export default function Home() {
   const [phase, setPhase] = useState<"selector" | "input" | "success" | "exists" | "error">("selector");
   const [email, setEmail] = useState("");
   const [submittedEmail, setSubmittedEmail] = useState("");
+  const [copied, setCopied] = useState(false);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
+
+  const copyPrompt = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(PROMPT);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // insecure context / old browser — silent fail, prompt still visible
+    }
+  }, []);
 
   const submitEmail = useCallback(async (emailValue: string) => {
     if (!emailValue || !emailValue.includes("@") || !emailValue.includes(".")) return;
@@ -35,7 +48,7 @@ export default function Home() {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.isComposing) return;
       const active = document.activeElement as HTMLElement;
-      if (active?.tagName === "INPUT" || active?.tagName === "TEXTAREA") {
+      if (active?.tagName === "INPUT" || active?.tagName === "TEXTAREA" || active?.tagName === "BUTTON") {
         if (active !== hiddenInputRef.current) return;
       }
 
@@ -80,7 +93,48 @@ export default function Home() {
         <div className="mt-12 flex flex-col">
           <p>we have ai psychosis</p>
         </div>
-        <p className="mt-4">ask your agent to tell you more</p>
+
+        <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-3">
+          <p>ask your agent</p>
+          <div className="flex items-center gap-3 rounded-md bg-[#0f1019] px-4 py-3">
+            <code className="font-mono text-foreground">{PROMPT}</code>
+            <button
+              type="button"
+              onClick={copyPrompt}
+              aria-label={copied ? "copied" : "copy prompt to clipboard"}
+              className="text-hint transition-colors hover:text-foreground"
+            >
+              {copied ? (
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              ) : (
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-col">
