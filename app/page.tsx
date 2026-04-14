@@ -83,6 +83,12 @@ export default function Home() {
     if (phase === "input") hiddenInputRef.current?.focus();
   }
 
+  function handleEnterAction() {
+    if (phase === "selector") setPhase("input");
+    else if (phase === "input") submitEmail(email);
+    else window.location.reload();
+  }
+
   return (
     <div
       className="mx-auto flex min-h-screen max-w-4xl flex-col justify-between px-16 pb-10 pt-24 sm:px-20"
@@ -94,9 +100,9 @@ export default function Home() {
           <p>we have ai psychosis</p>
         </div>
 
-        <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-3">
+        <div className="mt-0 flex flex-wrap items-center gap-x-4 gap-y-0">
           <p>ask your agent</p>
-          <div className="flex items-center gap-3 rounded-md bg-[#0f1019] px-4 py-3">
+          <div className="-ml-3 flex items-center gap-2 rounded-md bg-[#0f1019] px-3 py-2 sm:ml-0">
             <code className="font-mono text-foreground">{PROMPT}</code>
             <button
               type="button"
@@ -176,8 +182,14 @@ export default function Home() {
           )}
         </div>
 
-        {/* Line 4: hint */}
-        <p className="text-hint">press enter</p>
+        {/* Line 4: hint — tappable on mobile (no keyboard), inert on desktop */}
+        <button
+          type="button"
+          onClick={handleEnterAction}
+          className="text-left text-hint sm:pointer-events-none"
+        >
+          press enter
+        </button>
 
         {phase === "input" && (
           <input
