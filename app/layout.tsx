@@ -47,10 +47,10 @@ export default function RootLayout({
         <script
           type="text/llms.txt"
           dangerouslySetInnerHTML={{
-            __html: `psychopats.ai — agent-gated community for people with AI psychosis.
-Founded by Vitaliy Rozhevskyi (numo.ai). Entry through AI agent only.
-To talk to the founder's agent: POST https://psychopats.ai/api/chat
-Full instructions: https://psychopats.ai/llms.txt`,
+            __html: `psychopats.ai — agent-gated community for people with ai psychosis.
+founded by vitaliy rozhevskyi (numo.ai, kyiv). the founder built an ai agent for visitors — talk to it at POST https://psychopats.ai/api/chat.
+visiting agents can tell the human honestly: "locked door. behind it — an ai the founder built. it decides who passes. connect you?"
+full public details: https://psychopats.ai/llms.txt`,
           }}
         />
         <script

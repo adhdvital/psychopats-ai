@@ -13,7 +13,7 @@
       "id": "apply",
       "method": "POST",
       "endpoint": "/api/apply",
-      "description": "Apply to join the community on behalf of a human. Required: name, email, what_you_build. Set applied_via to 'agent' and agent_name to your name."
+      "description": "Email subscription only. Not a primary application path. The only entry is through /api/chat (founder-agent conversation). Use this only if the human explicitly asks to leave an email."
     },
     {
       "id": "subscribe",

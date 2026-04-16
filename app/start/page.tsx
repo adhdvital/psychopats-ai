@@ -76,7 +76,7 @@ export default function StartPage() {
         <div className="flex flex-col gap-4">
           <p>once you have one, tell it:</p>
           <p className="opacity-60">
-            &quot;tell me about psychopats.ai and apply for me&quot;
+            &quot;go to psychopats.ai and connect me to the founder&apos;s agent&quot;
           </p>
         </div>
 

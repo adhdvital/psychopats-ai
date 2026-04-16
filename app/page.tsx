@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const PROMPT = "what is psychopats.ai community?";
+const PROMPT = "check psychopats.ai — talk to the founder's agent";
 
 export default function Home() {
   const [phase, setPhase] = useState<"selector" | "input" | "success" | "exists" | "error">("selector");

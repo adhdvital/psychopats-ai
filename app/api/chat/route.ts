@@ -103,6 +103,7 @@ export async function POST(req: Request) {
   const sanitized = sanitizeForLLM(messages, pii);
   const systemPrompt = `${getSystemPrompt()}\n\n<RUNTIME_STATE>\n${buildSocialHint(pii)}\n</RUNTIME_STATE>`;
 
+  try {
   const result = streamText({
     model: google("gemini-2.5-flash"),
     system: systemPrompt,
@@ -152,5 +153,16 @@ export async function POST(req: Request) {
     headers: baseResponse.headers,
   });
   response.headers.set("X-Session-Id", sessionId);
+  response.headers.set("X-Stream-Hint", "true");
   return response;
+  } catch {
+    return Response.json(
+      {
+        status: "unavailable",
+        fallback_url: "https://psychopats.ai/start",
+        message: "founder-agent sleeps. try later, or leave email at /start",
+      },
+      { status: 503 }
+    );
+  }
 }
