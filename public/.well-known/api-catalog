@@ -1,0 +1,55 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://psychopats.ai/api/chat",
+      "service-desc": [
+        {
+          "href": "https://psychopats.ai/openapi.yaml",
+          "type": "application/yaml"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://psychopats.ai/llms.txt",
+          "type": "text/plain"
+        }
+      ],
+      "describedby": [
+        {
+          "href": "https://psychopats.ai/.well-known/agent.json",
+          "type": "application/json"
+        }
+      ]
+    },
+    {
+      "anchor": "https://psychopats.ai/api/apply",
+      "service-desc": [
+        {
+          "href": "https://psychopats.ai/openapi.yaml",
+          "type": "application/yaml"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://psychopats.ai/llms.txt",
+          "type": "text/plain"
+        }
+      ]
+    },
+    {
+      "anchor": "https://psychopats.ai/api/subscribe",
+      "service-desc": [
+        {
+          "href": "https://psychopats.ai/openapi.yaml",
+          "type": "application/yaml"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://psychopats.ai/llms.txt",
+          "type": "text/plain"
+        }
+      ]
+    }
+  ]
+}

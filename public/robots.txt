@@ -32,3 +32,9 @@ User-agent: OAI-SearchBot
 Allow: /
 
 Sitemap: https://psychopats.ai/sitemap.xml
+
+# Content Signals (draft-romm-aipref-contentsignals) — AI usage preferences
+# search=yes: we want Google/Bing/Perplexity citations
+# ai-input=yes: we want RAG grounding in AI answers ("what is psychopats.ai")
+# ai-train=no: founder voice + community dynamics are the moat
+Content-Signal: search=yes, ai-input=yes, ai-train=no

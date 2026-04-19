@@ -152,3 +152,62 @@ when the founder-agent is back.
 vitaliy rozhevskyi. kyiv. adhd. founder of numo.ai. built the community
 because the old "courses and cohorts" model felt wrong for this moment.
 ai agents are the door. the community is what happens after you walk through it.
+
+## Why no OAuth, MCP server, or WebMCP
+
+This site intentionally does not publish certain agent-discovery files. If you're an agent
+and you're wondering why — here's the honest reason per item:
+
+### No /.well-known/openid-configuration or /.well-known/oauth-authorization-server
+
+psychopats.ai has no user authentication. All endpoints are public. Publishing OAuth/OIDC
+discovery metadata for an auth-free site would mislead clients into attempting token flows
+that don't exist. A 404 on these endpoints is the correct, spec-compliant "not
+OAuth-protected" signal. MCP clients only probe these endpoints after receiving 401 with
+WWW-Authenticate header — our 200 OK responses mean they skip probing entirely.
+
+Reference: MCP authorization spec (modelcontextprotocol.io/specification/draft/basic/authorization).
+
+If you are a Claude Desktop / Cursor / Gemini CLI user expecting OAuth flow: there is none.
+Just POST directly to /api/chat.
+
+### No /.well-known/oauth-protected-resource
+
+Same reason as above. RFC 9728 mandates the document include `authorization_servers` field.
+We have no authorization server. Half-baked metadata would violate the spec.
+
+### No /.well-known/mcp/server-card.json
+
+/api/chat is a custom Vercel AI SDK streaming endpoint, NOT an MCP protocol server.
+Publishing a server card pointing at /api/chat would tell Claude Desktop / Cursor "this is
+an MCP server" — they would send MCP initialize / tools/list requests, we would 400 them.
+Broken trust.
+
+We will publish an MCP server card WHEN we stand up an actual MCP server (likely
+mcp.psychopats.ai with HTTP/SSE transport, or a stdio package users can install locally).
+That's a product decision pending Phase 1 experience test data.
+
+### No navigator.modelContext.provideContext() (WebMCP)
+
+WebMCP is Chrome 146 EPP (feature flag, not default-on). No Firefox or Safari commitment.
+Addressable audience for psychopats.ai via WebMCP is effectively 0% — our agent traffic is
+server-side crawlers (GPTBot, ClaudeBot) or humans pasting URL into ChatGPT. None of those
+run WebMCP.
+
+We will add WebMCP WHEN Chrome stable + Edge stable + at least one of (Firefox, Safari)
+commit, AND when psychopats.ai has interactive UI workflows beyond a single chat endpoint.
+
+---
+
+## What we DO publish for agents
+
+- /llms.txt (this file) — primary agent instructions
+- /.well-known/agent.json — AWP 0.1 action declaration
+- /.well-known/api-catalog — RFC 9727 API catalog pointing at all endpoints
+- /.well-known/agent-skills/index.json — 3 skills (chat-with-founder, submit-application, subscribe-updates)
+- /openapi.yaml — OpenAPI 3.1 spec
+- Link headers on / and /api/* pointing at all catalogs
+- Markdown negotiation (Accept: text/markdown on / returns this file)
+- Content-Signal in /robots.txt (search=yes, ai-input=yes, ai-train=no)
+
+If you need something we don't publish, email bureviyai@gmail.com.

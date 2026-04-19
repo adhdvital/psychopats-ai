@@ -1,0 +1,119 @@
+openapi: 3.1.0
+info:
+  title: psychopats.ai API
+  version: 1.0.0
+  description: |
+    Agent-gated community for AI builders. Primary path is /api/chat —
+    streaming conversation with founder agent. /api/apply and /api/subscribe
+    are fallback/auxiliary endpoints.
+  contact:
+    name: psychopats.ai
+    url: https://psychopats.ai
+  license:
+    name: Proprietary
+servers:
+  - url: https://psychopats.ai
+    description: Production
+
+paths:
+  /api/chat:
+    post:
+      summary: Stream conversation with founder agent
+      description: |
+        Main agent-facing endpoint. Streams text response via Vercel AI SDK.
+        Returns X-Session-Id header for multi-turn continuation.
+        Uses Gemini 2.5 Flash backend (free tier).
+      operationId: chat
+      tags: [conversation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Streaming text response
+          headers:
+            X-Session-Id:
+              schema: { type: string, format: uuid }
+              description: Session UUID for multi-turn context
+          content:
+            text/event-stream:
+              schema: { type: string }
+        '429':
+          description: Rate limited — try fallback chain
+        '500':
+          description: Server error
+
+  /api/apply:
+    post:
+      summary: Submit email-only application (fallback)
+      description: |
+        Fallback path when user declines conversation. Primary path is /api/chat.
+        Triggers Telegram notification to founder.
+      operationId: apply
+      tags: [application]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplyRequest'
+      responses:
+        '200':
+          description: Application submitted
+        '400':
+          description: Invalid input
+
+  /api/subscribe:
+    post:
+      summary: Subscribe to launch updates
+      description: Email subscription for launch notifications.
+      operationId: subscribe
+      tags: [newsletter]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscribeRequest'
+      responses:
+        '200':
+          description: Subscribed
+        '400':
+          description: Invalid email
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required: [messages]
+      properties:
+        messages:
+          type: array
+          items:
+            type: object
+            required: [role, content]
+            properties:
+              role:
+                type: string
+                enum: [user, assistant, system]
+              content:
+                type: string
+        sessionId:
+          type: string
+          format: uuid
+          description: Optional, server generates if omitted
+    ApplyRequest:
+      type: object
+      required: [email]
+      properties:
+        name: { type: string }
+        email: { type: string, format: email }
+        what_you_build: { type: string }
+    SubscribeRequest:
+      type: object
+      required: [email]
+      properties:
+        email: { type: string, format: email }

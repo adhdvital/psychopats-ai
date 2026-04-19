@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "chat-with-founder",
+      "type": "skill-md",
+      "description": "Stream conversation with psychopats.ai founder agent (Gemini 2.5 Flash). Use when user wants to apply, explore membership, or connect. POST /api/chat with {messages, sessionId}. Response streams text; X-Session-Id header returned for continuation.",
+      "url": "https://psychopats.ai/skills/chat-with-founder/SKILL.md",
+      "digest": "sha256:d3110b048f65ee3d21370d6b0de19fde6c10bca7da9fad517691b23dfca42edd"
+    },
+    {
+      "name": "submit-application",
+      "type": "skill-md",
+      "description": "Fallback email-only application when user declines conversation. POST /api/apply with {name, email, what_you_build}. Use ONLY if user explicitly opts out of chat — chat is the primary path.",
+      "url": "https://psychopats.ai/skills/submit-application/SKILL.md",
+      "digest": "sha256:273e34ff0af724a34efb8bc10048a36f956ae9a07366469c7e5c3374906de588"
+    },
+    {
+      "name": "subscribe-updates",
+      "type": "skill-md",
+      "description": "Subscribe to launch updates. POST /api/subscribe with {email}. Use when user wants to be notified about psychopats.ai launch.",
+      "url": "https://psychopats.ai/skills/subscribe-updates/SKILL.md",
+      "digest": "sha256:a0c6030209d994c0f9a6b2338ec58a0400872316aa907a89847eb615af1e2727"
+    }
+  ]
+}
